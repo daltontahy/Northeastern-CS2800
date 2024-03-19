@@ -1,7 +1,7 @@
 # jqwik for java
 
-### Creating properities in java 
-## Example 1
+## Creating properities in java 
+### Example 1: property with int
 ```
  import net.jqwik.api.*;
  import org.assertj.core.api.*;
@@ -24,7 +24,38 @@ Each property method has to either
      * return nothing (`void`)  
 
 At runtime, jqwik will fill in the parameter values 1000 explicit times and test the property method with each parameter set.
-Any failed attempt will stop the execution and report a failure.
+Any failed attempt will stop the execution and report a failure.  
+
+## Failure Reporting
+jqwik reports 3 things when a property fails:  
+   * Relevant exception
+   * The property's base parameters
+   * The failing sample
+
+### Example 2: property with String
+```
+ import net.jqwik.api.*;
+ import org.assertj.core.api.*;
+
+ class PropertyExample {
+
+   // example property for strings less than the length of 4
+   @Property
+   boolean stringsLessThanFour(@ForAll String str) {
+     return str.length() < 4;
+   }
+ }
+```
+ 
+
+
+
+
+
+
+
+
+
 
 
 

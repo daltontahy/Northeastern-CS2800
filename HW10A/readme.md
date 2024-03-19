@@ -29,7 +29,7 @@ Any failed attempt will stop the execution and report a failure.
 
 ## Failure Reporting
 ### Example: property failure
-__GRADING NOTE:__ *his example was taken from the official docs to avoud setting up JUnit 5 on my machine. It is not being used
+__GRADING NOTE:__ *this example was taken from the official docs to avoid setting up JUnit 5 on my machine. It is not being used
 as one of my 3 examples, and it is here for thoroughness.*
 ```
   @Property
@@ -82,6 +82,12 @@ jqwik reports 3 things when a property fails:
    * The property's base parameters
    * The failing sample
 ```
+jqwik reports 3 main things here:  
+  * The relevant exception
+  * the property's base parameters
+  * the failing sample
+
+
 
 ## Example 2: property with parameterized types 
 ```

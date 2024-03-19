@@ -136,7 +136,9 @@ but even now it's clear how benifical it can be.
 
 <d><d/>
 # Part 2
-
+## Why We Should Use jqwik
+### Test Coverage
+jqwik allows us to expand our test coverage, as it is capable of generating a wide range of test cases automatically. When we use example-based testing, the correctness of our project depends on the examples created by the software enginner(s) developing the project. By automating our test cases, we can uncover potential edge cases, especially for particularly complex programs, that can otherwise be missed.
 
 
 

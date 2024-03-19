@@ -20,8 +20,8 @@ can be use on `public`, `protected`, or `package-scoped` methods. Each property 
 by __@ForAll__.  
 
 Each property method has to either  
-    * return a `boolean`  
-    * return nothing (`void`)  
+     * return a `boolean`  
+     * return nothing (`void`)  
 
 At runtime, jqwik will fill in the parameter values 1000 explicit times and test the property method with each parameter set.
 Any failed attempt will stop the execution and report a failure.

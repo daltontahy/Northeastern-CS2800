@@ -87,7 +87,9 @@ jqwik reports 3 main things here:
   * the property's base parameters
   * the failing sample
 
-
+However, this error reporting does have a caveat. If you are using mutable objects, and they are changed in the property,
+their final state will be reported, not their initial state. this means that it can be tricky to decipher what went wrong, 
+as finding the exact cause of failure can be more complicated.
 
 ## Example 2: property with parameterized types 
 ```
@@ -120,8 +122,14 @@ what if you want to use custom parameters?
   }
 ```
 In this example, we were able to "provide" the property with a custom parameter, `numbersOneToTen`. When called, the random inputs generated
-will adhere to the specification in `numbersOneToTen`. This adds major flexibility to our code, as we are able to design more specific properties
-that don't rely on built-in constructs.
+will adhere to the specification in `numbersOneToTen`.
+
+This adds major flexibility to our code, as we are able to design more specific properties that don't rely on built-in constructs. This library,
+specifically its ease and flexibility in this aspect, benifits greatly from custom parameters.
+
+## Conclusion
+This only scratches the surface with Property Based Testing in a mainstream language such as java. This library has much more to explore,
+but even now it's clear how benifical it can be.
 
 
 

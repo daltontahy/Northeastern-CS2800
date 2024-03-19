@@ -3,10 +3,16 @@
 ### Creating properities in java 
 Properites can be written with @Properity, and must have one or more parameters annotated with @ForAll.
 
-     ## example usage
-   *  @Property
-   *  boolean evenIntegers(@ForAll int anInt) {
-   *    return (anInt % 2) = 0;
-   *  }
-     
+```
+ import net.jqwik.api.*;
+ import org.assertj.core.api.*;
+
+ // example property for even integers using jqwik
+ @Property
+ boolean evenIntegers(@ForAll int anInt) {
+   return (anInt % 2) = 0;
+ }
+```
+
+
 

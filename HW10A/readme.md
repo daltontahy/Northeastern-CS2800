@@ -1,8 +1,7 @@
 # jqwik for java
 
 ### Creating properities in java 
-Properites can be written with @Properity, and must have one or more parameters annotated with @ForAll.
-
+## Example 1
 ```
  import net.jqwik.api.*;
  import org.assertj.core.api.*;
@@ -13,6 +12,11 @@ Properites can be written with @Properity, and must have one or more parameters 
    return (anInt % 2) = 0;
  }
 ```
+As you can see above, the property is written in the form of a *method*, but with the special @Property annotation. This
+can be use on `public`, `protected`, or `package-scoped` methods. Each property must have one or more parameters, annotated
+by @ForAll.
+
+
 
 
 

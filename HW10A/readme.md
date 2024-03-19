@@ -27,11 +27,61 @@ Each property method has to either
 At runtime, jqwik will fill in the parameter values 1000 explicit times and test the property method with each parameter set.
 Any failed attempt will stop the execution and report a failure.  
 
-### Failure Reporting
+## Failure Reporting
+### Example: property failure
+__GRADING NOTE:__ *his example was taken from the official docs to avoud setting up JUnit 5 on my machine. It is not being used
+as one of my 3 examples, and it is here for thoroughness.*
+```
+  @Property
+	 void lengthOfConcatenatedStringIsGreaterThanLengthOfEach(
+		@ForAll String string1, @ForAll String string2
+	 ) {
+	  	String conc = string1 + string2;
+		  Assertions.assertThat(conc.length()).isGreaterThan(string1.length());
+	  	Assertions.assertThat(conc.length()).isGreaterThan(string2.length());
+ 	}
+```
+__FAILURE REPORTED:__
+```
+PropertyBasedTests:lengthOfConcatenatedStringIsGreaterThanLengthOfEach = 
+  java.lang.AssertionError: 
+    Expecting:
+     <0>
+    to be greater than:
+     <0> 
+                              |-----------------------jqwik-----------------------
+tries = 16                    | # of calls to property
+checks = 16                   | # of not rejected calls
+generation = RANDOMIZED       | parameters are randomly generated
+after-failure = SAMPLE_FIRST  | try previously failed sample, then previous seed
+when-fixed-seed = ALLOW       | fixing the random seed is allowed
+edge-cases#mode = MIXIN       | edge cases are mixed in
+edge-cases#total = 4          | # of all combined edge cases
+edge-cases#tried = 0          | # of edge cases tried in current run
+seed = -2370223836245802816   | random seed to reproduce generated values
+
+Shrunk Sample (<n> steps)
+-------------------------
+  string1: ""
+  string2: ""
+
+Original Sample
+---------------
+  string1: "乮��깼뷼檹瀶�������የ뷯����ঘ꼝���焗봢牠"
+  string2: ""
+
+  Original Error
+  --------------
+  java.lang.AssertionError: 
+    Expecting:
+     <29>
+    to be greater than:
+     <29>
 jqwik reports 3 things when a property fails:  
    * Relevant exception
    * The property's base parameters
    * The failing sample
+```
 
 ## Example 2: property with parameterized types 
 ```
@@ -63,6 +113,10 @@ what if you want to use custom parameters?
     return (num % 2) == 0;
   }
 ```
+In this example, we were able to "provide" the property with a custom parameter, `numbersOneToTen`. When called, the random inputs generated
+will adhere to the specification in `numbersOneToTen`. This adds major flexibility to our code, as we are able to design more specific properties
+that don't rely on built-in constructs.
+
 
 
 

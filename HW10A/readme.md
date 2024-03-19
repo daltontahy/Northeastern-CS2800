@@ -27,13 +27,13 @@ Each property method has to either
 At runtime, jqwik will fill in the parameter values 1000 explicit times and test the property method with each parameter set.
 Any failed attempt will stop the execution and report a failure.  
 
-## Failure Reporting
+### Failure Reporting
 jqwik reports 3 things when a property fails:  
    * Relevant exception
    * The property's base parameters
    * The failing sample
 
-### Example 2: property with parameterized types 
+## Example 2: property with parameterized types 
 ```
  import net.jqwik.api.*;
  import org.assertj.core.api.*;
@@ -51,7 +51,7 @@ If you are constraining the generation of parameter types, you annotate the type
 This example continues to show the specifics of using predefined java constructs in your parameters. However,
 what if you want to use custom parameters?  
 
-### Example 3: arbitrary provider methods
+## Example 3: arbitrary provider methods
 ```
   @Provide
   Arbitrary<Integer> numbersOneToTen() {

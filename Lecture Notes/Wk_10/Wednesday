@@ -1,0 +1,63 @@
+#lang lsl
+(define (random-ref l)
+  (list-ref l (random (length l))))
+
+
+;(: par-map (All (X Y) (-> (-> X Y) (List X) (List Y))))
+(define (par-map f l)
+
+
+;; so as seen, we are able to distribute the processes over worker 1 and 2 evenly.
+
+;; now we want to not just have two workers, but all the way up to worker n. we want to evenly distrubute the jobs throughout each worker
+
+;; perfect we got it 
+  
+  (local
+    (;(: alternate (-> Boolean (List Any) (List (SendPacket Any))))
+    (define (alternate ws l)
+       (cond
+         ((empty? l) empty)
+         ((cons? l) (cons (send-packet (first ws)
+                                       (first l))
+                          (alternate (append (rest ws)
+                                             (list (first ws)))
+                                                          (rest l))))))
+
+     (: traverse-start (-> (List String) (Action (List Any #|Y|#))))
+          (define (traverse-start others #|others is the key for this question|#)
+            (action empty (alternate others l)))
+          
+          (: traverse-receive (-> (List Any #|Y|#)
+                                  (ReceivePacket Any #|Y|#)
+                                  (Action (List Any #|Y|#))))
+          (define (traverse-receive output-so-far pkt)
+            (action (cons (receive-packet-msg pkt) output-so-far)
+                    (list)))
+          
+          (: worker1-start (-> (List String) (Action False)))
+          (define (worker1-start others)
+            (action #f (list)))
+
+          (: worker1-receive (-> False (ReceivePacket Any #|X|#)
+                                (Action False)))
+          (define (worker1-receive st pkt)
+            (action #f (list (send-packet "traverse"
+                                          (f (receive-packet-msg pkt)))))))
+    (second
+     (assoc "traverse"
+           (start-debug random-ref
+                 (list (process (name "traverse")
+                                (on-start traverse-start)
+                                (on-receive traverse-receive))
+                       (process (name "worker1")
+                                (on-start worker1-start)
+                                (on-receive worker1-receive))
+                       (process (name "worker2")
+                                (on-start worker1-start)
+                                (on-receive worker1-receive))
+                        (process (name "worker3")
+                                (on-start worker1-start)
+                                (on-receive worker1-receive))))))))
+
+(par-map add1 (list 1 2 3 4 5 6))

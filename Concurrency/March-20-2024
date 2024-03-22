@@ -1,0 +1,133 @@
+#lang lsl
+(define (random-ref l)
+  (list-ref l (random (length l))))
+
+
+;(: par-map (All (X Y) (-> (-> X Y) (List X) (List Y))))
+(define (par-map f l)
+
+
+;; so as seen, we are able to distribute the processes over worker 1 and 2 evenly.
+
+;; now we want to not just have two workers, but all the way up to worker n. we want to evenly distrubute the jobs throughout each worker
+
+;; perfect we got it 
+  
+  (local
+    (;(: alternate (-> Boolean (List Any) (List (SendPacket Any))))
+    (define (alternate ws l)
+       (cond
+         ((empty? l) empty)
+         ((cons? l) (cons (send-packet (first ws)
+                                       (first l))
+                          (alternate (append (rest ws)
+                                             (list (first ws)))
+                                                          (rest l))))))
+
+     (: traverse-start (-> (List String) (Action (List Any #|Y|#))))
+          (define (traverse-start others #|others is the key for this question|#)
+            (action empty (alternate others l)))
+          
+          (: traverse-receive (-> (List Any #|Y|#)
+                                  (ReceivePacket Any #|Y|#)
+                                  (Action (List Any #|Y|#))))
+          (define (traverse-receive output-so-far pkt)
+            (action (cons (receive-packet-msg pkt) output-so-far)
+                    (list)))
+          
+          (: worker1-start (-> (List String) (Action False)))
+          (define (worker1-start others)
+            (action #f (list)))
+
+          (: worker1-receive (-> False (ReceivePacket Any #|X|#)
+                                (Action False)))
+          (define (worker1-receive st pkt)
+            (action #f (list (send-packet "traverse"
+                                          (f (receive-packet-msg pkt)))))))
+    (second
+     (assoc "traverse"
+           (start-debug random-ref
+                 (list (process (name "traverse")
+                                (on-start traverse-start)
+                                (on-receive traverse-receive))
+                       (process (name "worker1")
+                                (on-start worker1-start)
+                                (on-receive worker1-receive))
+                       (process (name "worker2")
+                                (on-start worker1-start)
+                                (on-receive worker1-receive))
+                        (process (name "worker3")
+                                (on-start worker1-start)
+                                (on-receive worker1-receive))))))))
+
+(par-map add1 (list 1 2 3 4 5 6))
+
+
+
+
+;; now here is the final
+(define-struct pm [orig queue])
+(define-struct map-job [v])
+(define-struct reduce-job [v1 v2])
+(define-contract (Job X) (OneOf (MapJob X) (ReduceJob X X)))
+(define (map-reduce map-fn reduce-fn l)
+  (local [(define (traverse ms ps l)
+            (cond [(empty? l) (action (make-pm l empty) ms)]
+                  [(empty? ps) (action (make-pm l empty) ms)]
+                  [(cons? l) (traverse
+                              (cons (send-packet (first ps) (make-map-job (first l)))
+                                    ms)
+                              (rest ps)
+                              (rest l))]))
+          (define (worker-process nm)
+            (process
+             (name nm)
+             (on-start
+              (lambda (others) (action #f (list))))
+             (on-receive
+              (lambda (st pkt)
+                (let ([msg (receive-packet-msg pkt)])
+                  (action
+                   #f
+                   (list (send-packet
+                          "traverse"
+                          (cond [(map-job? msg) (map-fn (map-job-v msg))]
+                                [(reduce-job? msg) (reduce-fn (reduce-job-v1 msg)
+                                                              (reduce-job-v2 msg))])))))))))]
+    (start random-ref
+           (list
+            (process
+             (name "traverse")
+             (on-start
+              (lambda (others)
+                (traverse empty others l)))
+             (on-receive
+              (lambda (state pkt)
+                (cond [(cons? (pm-orig state))
+                       (action (make-pm (rest (pm-orig state))
+                                        (cons (receive-packet-msg pkt)
+                                              (pm-queue state)))
+                               (list (send-packet (receive-packet-from pkt)
+                                                  (make-map-job (first (pm-orig state))))))]
+                      [(empty? (pm-queue state))
+                       (action (make-pm empty (list (receive-packet-msg pkt)))
+                               (list))]
+                      [else
+                       (action (make-pm empty (rest (pm-queue state)))
+                               (list (send-packet (receive-packet-from pkt)
+                                                  (make-reduce-job
+                                                   (receive-packet-msg pkt)
+                                                   (first (pm-queue state))))))]))))
+            (worker-process "worker1")
+            (worker-process "worker2")
+            (worker-process "worker3")))))
+(map-reduce add1 + (list 1 2 3 4))
+(list
+
+ (list "traverse" (make-pm '() '(14)))
+
+ '("worker1" #f)
+
+ '("worker2" #f)
+
+ '("worker3" #f))
